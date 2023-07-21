@@ -1,15 +1,13 @@
 <?php
 
 namespace App\Models;
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Passport\HasApiTokens;
 
 class DriverDocument extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -32,4 +30,9 @@ class DriverDocument extends Model
         'liscence_picture',
         'car_picture',
     ];
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class, 'document_id');
+    }
 }

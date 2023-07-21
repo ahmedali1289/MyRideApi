@@ -35,8 +35,11 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/adminApproveRequests', [AuthController::class, 'adminApproveRequests']);
     Route::get('/logout', [AuthController::class, 'logout']);
     Route::post('create-cart', [AccountController::class, 'createCart']);
+    Route::post('create-rating', [AccountController::class, 'createRating']);
+
     Route::post('create-help', [PrivacyController::class, 'create_help']);
     Route::get('get-cart', [AccountController::class, 'get']);
+    
 });
     Route::post('otp', [AuthController::class, 'otpGenerate']);
     Route::delete('cart-delete/{id}', [AccountController::class, 'delete']);

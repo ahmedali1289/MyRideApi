@@ -44,7 +44,6 @@ class AuthController extends Controller
         $role = $request->input('role');
         $active_status;
         if($role == 'passenger' || $role == 'admin'){
-            // Find the matching OTP in the OTP table
             $otpData = Otp::where('email', $email)->first();
             if (!$otpData) {
                 return response()->json(['error' => 'Email not found'], 404);
