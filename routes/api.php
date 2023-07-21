@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\PrivacyController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -24,6 +26,7 @@ Route::group([
     Route::post('imageUploadBase64', [AuthController::class, 'imageUploadBase64']);
     Route::post('fileUpload', [AuthController::class, 'fileUpload']);
     Route::post('/changePassword', [AuthController::class, 'changePassword']);
+
 });
 Route::middleware(['auth:api'])->group(function () {
     Route::post('/updateUser', [AuthController::class, 'updateUser']);
@@ -31,5 +34,14 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/userRequests', [AuthController::class, 'getUserRequests']);
     Route::post('/adminApproveRequests', [AuthController::class, 'adminApproveRequests']);
     Route::get('/logout', [AuthController::class, 'logout']);
+    Route::post('create-cart', [AccountController::class, 'createCart']);
+    Route::post('create-help', [PrivacyController::class, 'create_help']);
+    Route::get('get-cart', [AccountController::class, 'get']);
 });
-Route::post('otp', [AuthController::class, 'otpGenerate']);
+    Route::post('otp', [AuthController::class, 'otpGenerate']);
+    Route::delete('cart-delete/{id}', [AccountController::class, 'delete']);
+    Route::post('privacy-create', [PrivacyController::class, 'create']);
+
+    Route::get('privacy-get', [PrivacyController::class, 'getPrivacy']);
+    Route::post('term-create', [PrivacyController::class, 'create_term']);
+    Route::get('term-get', [PrivacyController::class, 'getTerm']);
