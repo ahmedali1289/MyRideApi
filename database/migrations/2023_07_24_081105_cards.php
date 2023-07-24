@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('card_no'); 
             $table->string('date');
+            $table->string('type');
             $table->string('ccv');
             $table->unsignedBigInteger('user_id');
             $table->boolean('status')->default(1);

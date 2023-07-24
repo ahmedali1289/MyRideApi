@@ -21,30 +21,44 @@ class AccountController extends Controller
             'date' => 'required',
             'ccv' => 'required',
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json(['success' => false, 'message' => $validator->errors()->first()], 403);
         }
 
         try {
             $userId = auth()->user()->id;
-    
+
+            $existingCard = Card::where('name', $request->input('name'))
+                ->where('card_no', $request->input('card_no'))
+                ->where('date', $request->input('date'))
+                ->where('ccv', $request->input('ccv'))
+                ->where('user_id', $userId)
+                ->first();
+
+            if ($existingCard) {
+                return response()->json(['message' => 'Card with the same details already exists for this user'], 200);
+            }
+
             $card = new Card([
                 'user_id' => $userId,
                 'name' => $request->input('name'),
                 'card_no' => $request->input('card_no'),
                 'date' => $request->input('date'),
                 'ccv' => $request->input('ccv'),
+                'type' => $request->input('type'),
                 'status' => 1,
             ]);
-    
+
             $card->save();
-            
+
             return response()->json(['message' => 'Card created successfully'], 201);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
+
+
 
     public function delete(Request $request, $id)
     {
@@ -68,7 +82,7 @@ class AccountController extends Controller
         try {
             $user = Auth::user();
             $card = Card::where('status', 1)->get();
-            return response()->json(['carts' => $card], 200);
+            return response()->json(['cards' => $card], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }

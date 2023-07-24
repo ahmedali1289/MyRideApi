@@ -15,5 +15,6 @@ class Card extends Model
         'date',
         'ccv',
         'user_id',
+        'type',
     ];
 }
