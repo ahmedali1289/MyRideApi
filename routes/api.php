@@ -8,6 +8,8 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\PrivacyController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\ServicesController;
+use App\Http\Controllers\RideController;
+
 
 
 /*
@@ -47,7 +49,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('create-rating', [RatingController::class, 'createRating']); 
 });
     Route::post('otp', [AuthController::class, 'otpGenerate']);
-    Route::post('cart-delete/{id}', [AccountController::class, 'delete']);
+    Route::post('card-delete/{id}', [AccountController::class, 'delete']);
     Route::post('privacy-create', [PrivacyController::class, 'create']);
 
     Route::get('privacy-get', [PrivacyController::class, 'getPrivacy']);
@@ -62,4 +64,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('create-promo', [PromoController::class, 'createCodes']);
     Route::get('get-promo', [PromoController::class, 'getCodes']);
     Route::post('promo-delete/{id}', [PromoController::class, 'delete']);
+
+    Route::post('create-ride', [RideController::class, 'createRide']);
+
 
