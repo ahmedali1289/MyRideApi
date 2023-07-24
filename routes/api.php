@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PromoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\PrivacyController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\ServicesController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -54,3 +56,6 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::post('create-service', [ServicesController::class, 'createService']);
     Route::get('services-get', [ServicesController::class, 'getService']);
+
+    Route::post('create-promo', [PromoController::class, 'createCodes']);
+    Route::get('get-promo', [PromoController::class, 'getCodes']);

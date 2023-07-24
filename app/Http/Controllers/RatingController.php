@@ -20,7 +20,7 @@ class RatingController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => $validator->errors()->first()], 403);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
         try {

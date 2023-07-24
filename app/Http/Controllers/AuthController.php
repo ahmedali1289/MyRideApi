@@ -61,15 +61,12 @@ class AuthController extends Controller
             $active_status = 0;
             $password = null;
         }
-        // Check if the user already exists in the users table
         $existingUser = User::where('email', $email)->first();
 
         if ($existingUser) {
             return response()->json(['error' => 'User already registered'], 409);
         }
-        // Verify the password length
 
-        // Create the user in the users table
         $user = User::create([
             'fname' => $request->input('fname'),
             'lname' => $request->input('lname'),
@@ -136,7 +133,6 @@ class AuthController extends Controller
     {
         $email = $request->input('email');
 
-        // Check if the user exists in the users table
         $user = User::where('email', $email)->first();
 
         if (!$user) {
@@ -160,7 +156,6 @@ class AuthController extends Controller
         $email = $request->input('email');
         $otp = $request->input('otp');
 
-        // Find the matching OTP in the OTP table
         $otpData = Otp::where('email', $email)->first();
 
         if (!$otpData) {
@@ -177,14 +172,12 @@ class AuthController extends Controller
         $email = $request->input('email');
         $password = $request->input('password');
 
-        // Find the user by email in the users table
         $user = User::where('email', $email)->first();
 
         if (!$user) {
             return response()->json(['error' => 'User not found'], 404);
         }
 
-        // Update the user's password
         $user->password = Hash::make($password);
         $user->save();
 
@@ -192,20 +185,16 @@ class AuthController extends Controller
     }
     public function imageUploadBase64(Request $request)
     {
-        $imageData = $request->input('image'); // Your base64-encoded image
-        $imageData = str_replace('data:image/png;base64,', '', $imageData); // Remove the data URL scheme
-        $imageData = str_replace(' ', '+', $imageData); // Replace spaces with '+'
+        $imageData = $request->input('image');
+        $imageData = str_replace('data:image/png;base64,', '', $imageData); 
+        $imageData = str_replace(' ', '+', $imageData); 
 
-        // Decode the base64-encoded image data
         $decodedImage = base64_decode($imageData);
 
-        // Generate a unique file name with the .png extension
         $fileName = uniqid('image_') . '.png';
 
-        // Store the decoded image data in the storage/app/public directory
         Storage::disk('public')->put($fileName, $decodedImage);
 
-        // Get the storage file path
         $filePath = Storage::disk('public')->url($fileName);
         $uploadedImageResponse = array(
             "image_name" => basename($fileName),
@@ -219,10 +208,7 @@ class AuthController extends Controller
             $file = $request->file('file');
             $fileName = uniqid('file_') . '.' . $file->getClientOriginalExtension();
 
-            // Store the file in the storage/app/public directory
             Storage::disk('public')->putFileAs('', $file, $fileName);
-
-            // Get the storage file path
             $filePath = Storage::disk('public')->url($fileName);
             $uploadedFileResponse = [
                 "file_name" => $fileName,
@@ -236,10 +222,8 @@ class AuthController extends Controller
     }
     public function updateUser(Request $request)
     {
-        // Get the authenticated user
         $user = Auth::user();
 
-        // Find the user by ID in the users table
         $userId = $request->input('id');
         $userToUpdate = User::find($userId);
 
@@ -247,7 +231,6 @@ class AuthController extends Controller
             return response()->json(['error' => 'User not found'], 404);
         }
 
-        // Update the user's information
         $userToUpdate->fill($request->only(['fname', 'lname', 'address', 'phone']));
         $userToUpdate->save();
 
@@ -255,7 +238,6 @@ class AuthController extends Controller
     }
     public function getUser()
     {
-        // Get the authenticated user
         $user = Auth::user();
         return response()->json(['data' => $user], 200);
     }
@@ -281,11 +263,11 @@ class AuthController extends Controller
             return response()->json(['error' => 'You do not have permission to access this data.'], 403);
         }
     }
+    
     public function adminApproveRequests(Request $request)
     {
         $user = Auth::user();
 
-        // Check if the user is an admin
         if ($user->role !== 'admin') {
             return response()->json(['error' => 'You do not have permission to access this data.'], 403);
         }
@@ -298,7 +280,6 @@ class AuthController extends Controller
         $userToUpdate = User::find($userId);
         $requestToUpdate = Requests::where('user_id', $userId)->first();
 
-        // Check if the user and request exist
         if (!$userToUpdate || !$requestToUpdate) {
             return response()->json(['error' => 'User or Request not found'], 404);
         }
@@ -308,11 +289,9 @@ class AuthController extends Controller
             $userToUpdate->password = $passwordHashed;
         }
 
-        // Update the user and request data
         $userToUpdate->fill($request->only(['active_status']));
         $requestToUpdate->fill($request->only(['active_status', 'request']));
 
-        // Save changes
         $requestToUpdate->save();
         $userToUpdate->save();
         if ($active_status == 1) {
