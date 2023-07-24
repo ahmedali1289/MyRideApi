@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Cart;
+use App\Models\Card;
 use App\Models\Rating;
 use App\Models\DriverDocument;
 
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Validator;
 
 class AccountController extends Controller
 {
-    public function createCart(Request $request)
+    public function createCard(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
@@ -29,7 +29,7 @@ class AccountController extends Controller
         try {
             $userId = auth()->user()->id;
     
-            $cart = new Cart([
+            $card = new Card([
                 'user_id' => $userId,
                 'name' => $request->input('name'),
                 'card_no' => $request->input('card_no'),
@@ -38,9 +38,9 @@ class AccountController extends Controller
                 'status' => 1,
             ]);
     
-            $cart->save();
+            $card->save();
             
-            return response()->json(['message' => 'Cart created successfully'], 201);
+            return response()->json(['message' => 'Card created successfully'], 201);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
@@ -48,18 +48,18 @@ class AccountController extends Controller
 
     public function delete(Request $request, $id)
     {
-        $cart = Cart::find($id);
+        $card = Card::find($id);
 
-        if (!$cart) {
-            return response()->json(['message' => 'Cart not found'], 404);
+        if (!$card) {
+            return response()->json(['message' => 'card not found'], 404);
         }
 
-        if ($cart->status == 1) {
-            $cart->status = 0;
-            $cart->save();
-            return response()->json(['message' => 'Cart deleted successfully', 'status' => $cart->status]);
+        if ($card->status == 1) {
+            $card->status = 0;
+            $card->save();
+            return response()->json(['message' => 'card deleted successfully', 'status' => $card->status]);
         } else {
-            return response()->json(['message' => 'Cart is already deleted', 'status' => $cart->status]);
+            return response()->json(['message' => 'card is already deleted', 'status' => $card->status]);
         }
     }
 
@@ -67,8 +67,8 @@ class AccountController extends Controller
     {
         try {
             $user = Auth::user();
-            $cart = Cart::where('status', 1)->get();
-            return response()->json(['carts' => $cart], 200);
+            $card = Card::where('status', 1)->get();
+            return response()->json(['carts' => $card], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
