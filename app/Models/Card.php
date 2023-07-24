@@ -17,4 +17,9 @@ class Card extends Model
         'user_id',
         'type',
     ];
+
+    public function rides()
+    {
+        return $this->hasMany(Ride::class);
+    }
 }

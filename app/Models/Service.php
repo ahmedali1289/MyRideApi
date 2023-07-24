@@ -14,4 +14,9 @@ class Service extends Model
         'base_fare',
         'image',
     ];
+
+    public function rides()
+    {
+        return $this->hasMany(Ride::class);
+    }
 }
