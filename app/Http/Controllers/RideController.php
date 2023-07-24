@@ -55,4 +55,19 @@ class RideController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
+
+    public function getRide()
+    {
+        try {
+            $ride = Ride::latest('created_at')->get();
+    
+            if ($ride) {
+                return response()->json(['Rides' => $ride], 200);
+            } else {
+                return response()->json(['message' => 'Ride not found'], 404);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
 }
