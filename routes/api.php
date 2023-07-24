@@ -47,7 +47,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('create-rating', [RatingController::class, 'createRating']); 
 });
     Route::post('otp', [AuthController::class, 'otpGenerate']);
-    Route::delete('cart-delete/{id}', [AccountController::class, 'delete']);
+    Route::post('cart-delete/{id}', [AccountController::class, 'delete']);
     Route::post('privacy-create', [PrivacyController::class, 'create']);
 
     Route::get('privacy-get', [PrivacyController::class, 'getPrivacy']);
@@ -56,6 +56,10 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::post('create-service', [ServicesController::class, 'createService']);
     Route::get('services-get', [ServicesController::class, 'getService']);
+    Route::post('service-delete/{id}', [ServicesController::class, 'delete']);
+
 
     Route::post('create-promo', [PromoController::class, 'createCodes']);
     Route::get('get-promo', [PromoController::class, 'getCodes']);
+    Route::post('promo-delete/{id}', [PromoController::class, 'delete']);
+

@@ -45,4 +45,21 @@ class ServicesController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
+
+    public function delete(Request $request, $id)
+    {
+        $service = Service::find($id);
+
+        if (!$service) {
+            return response()->json(['message' => 'Service not found'], 404);
+        }
+
+        if ($service->status == 1) {
+            $service->status = 0;
+            $service->save();
+            return response()->json(['message' => 'Service deleted successfully', 'status' => $service->status]);
+        } else {
+            return response()->json(['message' => 'Service is already deleted', 'status' => $service->status]);
+        }
+    }
 }

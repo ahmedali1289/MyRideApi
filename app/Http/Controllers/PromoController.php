@@ -43,4 +43,21 @@ class PromoController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
+
+    public function delete(Request $request, $id)
+    {
+        $promo = PromoCode::find($id);
+
+        if (!$promo) {
+            return response()->json(['message' => 'Promo code not found'], 404);
+        }
+
+        if ($promo->status == 1) {
+            $promo->status = 0;
+            $promo->save();
+            return response()->json(['message' => 'Promo code deleted successfully', 'status' => $promo->status]);
+        } else {
+            return response()->json(['message' => 'Promo code is already deleted', 'status' => $promo->status]);
+        }
+    }
 }
