@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Ride;
 use App\Models\Card;
+use App\Models\Service;
 
 
 class RideController extends Controller
@@ -16,6 +17,8 @@ class RideController extends Controller
             'pick_up'  => 'required',
             'drop_of'  => 'required',
             'no_of_passenger'  => 'required',
+            'service_id' => 'required|exists:services,id',
+            'card_id' => 'required|exists:cards,id',
         ]);
 
         if ($validator->fails()) {
@@ -23,6 +26,14 @@ class RideController extends Controller
         }
 
         try {
+            $card = Card::find($request->input('card_id'));
+            $service = Service::find($request->input('service_id'));
+
+
+            if (!$card) {
+                return response()->json(['error' => 'Card not found'], 404);
+            }
+
             $ride = new Ride([
                 'pick_up' => $request->input('pick_up'),
                 'drop_of' => $request->input('drop_of'),
@@ -32,15 +43,10 @@ class RideController extends Controller
                 'estimated_fare' => $request->input('estimated_fare'),
                 'accept_time' => $request->input('accept_time'),
                 'code' => $request->input('code'),
-                'service_id' => $request->input('service_id'),
-                'card_id' => $request->input('card_id'),
+                'service_id' =>  $service->id,
+                'card_id' => $card->id,
                 'accept_driver_id' => $request->input('accept_driver_id'),
             ]);
-
-            // $ride->service()->associate($request->input('service_id'));
-            // $ride->card()->associate($request->input('card_id'));
-            // $ride->user()->associate($request->input('accept_driver_id'));
-
 
             $ride->save();
 
