@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\PrivacyController;
+use App\Http\Controllers\RatingController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -35,11 +36,12 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/adminApproveRequests', [AuthController::class, 'adminApproveRequests']);
     Route::get('/logout', [AuthController::class, 'logout']);
     Route::post('create-card', [AccountController::class, 'createCard']);
-    Route::post('create-rating', [AccountController::class, 'createRating']);
-
     Route::post('create-help', [PrivacyController::class, 'create_help']);
     Route::get('get-card', [AccountController::class, 'get']);
-    
+    Route::post('create-account', [AccountController::class, 'createAccount']);
+    Route::get('get-account', [AccountController::class, 'getAccount']);
+
+    Route::post('create-rating', [RatingController::class, 'createRating']); 
 });
     Route::post('otp', [AuthController::class, 'otpGenerate']);
     Route::delete('cart-delete/{id}', [AccountController::class, 'delete']);

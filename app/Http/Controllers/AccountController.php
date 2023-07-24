@@ -5,10 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Card;
-use App\Models\Rating;
-use App\Models\DriverDocument;
-
-
+use App\Models\Account;
 use Illuminate\Support\Facades\Validator;
 
 class AccountController extends Controller
@@ -58,8 +55,6 @@ class AccountController extends Controller
         }
     }
 
-
-
     public function delete(Request $request, $id)
     {
         $card = Card::find($id);
@@ -89,13 +84,12 @@ class AccountController extends Controller
     }
 
 
-
-    public function createRating(Request $request)
+    public function createAccount(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'driver_document_id' => 'required|exists:driver_documents,id',
-            'stars' => 'required',
-            'description' => 'required',
+            'name' => 'required',
+            'account_no' => 'required',
+            'branch_code' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -104,27 +98,45 @@ class AccountController extends Controller
 
         try {
             $userId = auth()->user()->id;
-            $driverDocumentId = $request->input('driver_document_id');
-            $driverDocument = DriverDocument::where('user_id', $userId)->find($driverDocumentId);
 
-            if (!$driverDocument) {
-                return response()->json(['success' => false, 'message' => 'Driver document not found for the authenticated user'], 404);
+            $existingAccount = Account::where('name', $request->input('name'))
+                ->where('account_no', $request->input('account_no'))
+                ->where('branch_code', $request->input('branch_code'))
+                ->where('user_id', $userId)
+                ->first();
+
+            if ($existingAccount) {
+                return response()->json(['message' => 'Account with the same details already exists for this user'], 200);
             }
 
-            $rating = new Rating([
+            $account = new Account([
                 'user_id' => $userId,
-                'document_id' => $driverDocumentId, // Use 'document_id' here, assuming the foreign key is named 'document_id'
-                'stars' => $request->input('stars'),
-                'description' => $request->input('description'),
+                'name' => $request->input('name'),
+                'account_no' => $request->input('account_no'),
+                'branch_code' => $request->input('branch_code'),
+                'status' => 1,
             ]);
 
-            $rating->save();
+            $account->save();
 
-            return response()->json(['message' => 'Rating created successfully'], 201);
+            return response()->json(['message' => 'Account created successfully'], 201);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
+
+    public function getAccount()
+    {
+        try {
+            $user = Auth::user();
+            $account = Account::where('status', 1)->get();
+            return response()->json(['accounts' => $account], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+
 
 
 
