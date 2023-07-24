@@ -76,12 +76,16 @@ class AccountController extends Controller
     {
         try {
             $user = Auth::user();
-            $card = Card::where('status', 1)->get();
-            return response()->json(['cards' => $card], 200);
+            $card = Card::where('status', 1)
+                ->where('user_id', $user->id)
+                ->latest('created_at')->get();
+    
+            return response()->json(['card' => $card], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
+    
 
 
     public function createAccount(Request $request)

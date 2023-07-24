@@ -6,6 +6,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\PrivacyController;
 use App\Http\Controllers\RatingController;
+use App\Http\Controllers\ServicesController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -40,7 +42,6 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('get-card', [AccountController::class, 'get']);
     Route::post('create-account', [AccountController::class, 'createAccount']);
     Route::get('get-account', [AccountController::class, 'getAccount']);
-
     Route::post('create-rating', [RatingController::class, 'createRating']); 
 });
     Route::post('otp', [AuthController::class, 'otpGenerate']);
@@ -50,3 +51,6 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('privacy-get', [PrivacyController::class, 'getPrivacy']);
     Route::post('term-create', [PrivacyController::class, 'create_term']);
     Route::get('term-get', [PrivacyController::class, 'getTerm']);
+
+    Route::post('create-service', [ServicesController::class, 'createService']);
+    Route::get('services-get', [ServicesController::class, 'getService']);
