@@ -21,7 +21,8 @@ class Ride extends Model
         'accept_driver_id',
         'card_id',
         'accept_time',
-        'code',        
+        'code', 
+        'user_id',        
     ];
 
     public function service()

@@ -21,12 +21,13 @@ return new class extends Migration
             $table->string('estimated_fare')->nullable();
             $table->unsignedBigInteger('service_id')->nullable();
             $table->unsignedBigInteger('card_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('accept_driver_id')->nullable();
             $table->string('accept_time')->nullable();
             $table->string('code')->nullable();
             $table->timestamps();
-
             $table->foreign('service_id')->references('id')->on('services');
+            $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('card_id')->references('id')->on('cards');
             $table->foreign('accept_driver_id')->references('id')->on('users');
         });

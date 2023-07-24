@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Ride;
 use App\Models\Card;
 use App\Models\Service;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+
 
 
 class RideController extends Controller
@@ -20,21 +23,36 @@ class RideController extends Controller
             'service_id' => 'required|exists:services,id',
             'card_id' => 'required|exists:cards,id',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
+    
         try {
+            $userId = auth()->user()->id;
+    
             $card = Card::find($request->input('card_id'));
             $service = Service::find($request->input('service_id'));
-
-
+    
             if (!$card) {
                 return response()->json(['error' => 'Card not found'], 404);
             }
-
+    
+            $userRole = auth()->user()->role;
+    
+            $acceptDriverId = null;
+            if ($userRole === 'driver') {
+                $acceptDriverId = $userId;
+            } else {
+                $acceptDriver = User::where('id', $request->input('accept_driver_id'))->where('role', 'driver')->first();
+                if (!$acceptDriver) {
+                    return response()->json(['error' => 'Driver not found'], 404);
+                }
+                $acceptDriverId = $acceptDriver->id;
+            }
+    
             $ride = new Ride([
+                'user_id' => $userId,
                 'pick_up' => $request->input('pick_up'),
                 'drop_of' => $request->input('drop_of'),
                 'no_of_passenger' => $request->input('no_of_passenger'),
@@ -45,20 +63,22 @@ class RideController extends Controller
                 'code' => $request->input('code'),
                 'service_id' =>  $service->id,
                 'card_id' => $card->id,
-                'accept_driver_id' => $request->input('accept_driver_id'),
+                'accept_driver_id' => $acceptDriverId,
             ]);
-
+    
             $ride->save();
-
+    
             return response()->json(['message' => 'Ride created successfully'], 201);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
+    
 
     public function getRide()
     {
         try {
+            $userId = auth()->user()->id;
             $ride = Ride::latest('created_at')->get();
     
             if ($ride) {
