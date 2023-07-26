@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Carbon;
 use Laravel\Passport\TokenRepository;
+use Illuminate\Support\Facades\Validator;
+
 
 class AuthController extends Controller
 {
@@ -110,25 +112,35 @@ class AuthController extends Controller
     }
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|email',
+                'password' => 'required',
+            ]);
 
-        $credentials = $request->only('email', 'password');
-
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            if ($user->active_status == 1) {
-                $token = $user->createToken('MyApp')->accessToken;
-                return response()->json(['message' => 'Successfully logged in', 'access_token' => $token, 'user' => $user]);
-            } else {
-                return response()->json(['error' => 'User deactivated'], 400);
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()->first()], 422);
             }
-        }
 
-        return response()->json(['error' => 'Invalid credentials'], 401);
+            $credentials = $request->only('email', 'password');
+            if (Auth::attempt($credentials)) {
+                $user = Auth::user();
+                if ($user->active_status == 1) {
+                    $token = $user->createToken('MyApp')->accessToken;
+                     return response()->json(['message' => 'Successfully logged in', 'access_token' => $token, 'user' => $user]);
+                }
+                if ($user->role === 'driver') {
+                    return response()->json(['error' => 'Unauthorized: Driver access denied.'], 401);
+                }
+                $user->save();
+            } else {
+                return response()->json(['error' => 'Invalid email or password.'], 403);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 403);
+        }
     }
+
     public function forgetPassword(Request $request)
     {
         $email = $request->input('email');
