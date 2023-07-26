@@ -117,22 +117,25 @@ class AuthController extends Controller
                 'email' => 'required|email',
                 'password' => 'required',
             ]);
-
+    
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->errors()->first()], 422);
             }
-
+    
             $credentials = $request->only('email', 'password');
             if (Auth::attempt($credentials)) {
                 $user = Auth::user();
                 if ($user->active_status == 1) {
+                    if ($user->role === 'driver') {
+                        // Driver access is denied
+                        return response()->json(['error' => 'Unauthorized: Driver access denied.'], 401);
+                    }
+    
                     $token = $user->createToken('MyApp')->accessToken;
-                     return response()->json(['message' => 'Successfully logged in', 'access_token' => $token, 'user' => $user]);
+                    return response()->json(['message' => 'Successfully logged in', 'access_token' => $token, 'user' => $user]);
+                } else {
+                    return response()->json(['error' => 'Your account is inactive.'], 403);
                 }
-                if ($user->role === 'driver') {
-                    return response()->json(['error' => 'Unauthorized: Driver access denied.'], 401);
-                }
-                $user->save();
             } else {
                 return response()->json(['error' => 'Invalid email or password.'], 403);
             }
@@ -140,6 +143,7 @@ class AuthController extends Controller
             return response()->json(['error' => $e->getMessage()], 403);
         }
     }
+    
 
     public function forgetPassword(Request $request)
     {
