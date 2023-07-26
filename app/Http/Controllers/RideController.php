@@ -11,7 +11,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 
-
 class RideController extends Controller
 {
     public function createRide(Request $request)
@@ -34,7 +33,7 @@ class RideController extends Controller
             $card = Card::find($request->input('card_id'));
             $service = Service::find($request->input('service_id'));
     
-            if (!$card) {
+            if (!$card) {  
                 return response()->json(['error' => 'Card not found'], 404);
             }
     
@@ -68,7 +67,7 @@ class RideController extends Controller
     
             $ride->save();
     
-            return response()->json(['message' => 'Ride created successfully'], 201);
+            return response()->json(['message' => 'Ride created successfully', 'Ride ' => $ride], 201);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
