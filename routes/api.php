@@ -41,6 +41,8 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/userRequests', [AuthController::class, 'getUserRequests']);
     Route::post('/adminApproveRequests', [AuthController::class, 'adminApproveRequests']);
     Route::get('/logout', [AuthController::class, 'logout']);
+    Route::get('get-users', [AuthController::class, 'getUsers']);
+    Route::get('get-user/{id}', [AuthController::class, 'getUserById']);
     Route::post('create-card', [AccountController::class, 'createCard']);
     Route::post('create-help', [PrivacyController::class, 'create_help']);
     Route::get('get-card', [AccountController::class, 'get']);

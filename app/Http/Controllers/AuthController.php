@@ -257,6 +257,35 @@ class AuthController extends Controller
         $user = Auth::user();
         return response()->json(['data' => $user], 200);
     }
+    public function getUsers()
+    {
+        $user = Auth::user();
+        $role = $user->role;
+
+        if ($role === 'admin') {
+            $users = User::where('role', '<>', 'admin')->get();
+            return response()->json(['data' => $users], 200);
+        } else {
+            return response()->json(['error' => 'You do not have permission to access this data.'], 403);
+        }
+    }
+    public function getUserById($id)
+    {
+        $user = Auth::user();
+        $role = $user->role;
+
+        if ($role === 'admin') {
+            $requestedUser = User::find($id);
+
+            if ($requestedUser) {
+                return response()->json(['data' => $requestedUser], 200);
+            } else {
+                return response()->json(['error' => 'User not found.'], 404);
+            }
+        } else {
+            return response()->json(['error' => 'You do not have permission to access this data.'], 403);
+        }
+    }
     public function logout()
     {
         $access_token = auth()->user()->token();
