@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Service;
+use Illuminate\Support\Facades\Auth;
 
 class ServicesController extends Controller
 {
@@ -21,6 +22,13 @@ class ServicesController extends Controller
         }
 
         try {
+
+            $user = Auth::user();
+
+            if ($user->role !== 'admin') {
+                return response()->json(['error' => 'You do not have permission to access this data.'], 403);
+            }
+
             $service = new Service([
                 'name' => $request->input('name'),
                 'base_fare' => $request->input('base_fare'),
@@ -28,6 +36,7 @@ class ServicesController extends Controller
                 'status' => 1,
             ]);
 
+            // Save the service in the database
             $service->save();
 
             return response()->json(['message' => 'Service created successfully'], 201);
@@ -35,6 +44,7 @@ class ServicesController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
+        
 
     public function getService()
     {
@@ -48,6 +58,11 @@ class ServicesController extends Controller
 
     public function delete(Request $request, $id)
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            return response()->json(['error' => 'You do not have permission to access this data.'], 403);
+        }
         $service = Service::find($id);
 
         if (!$service) {
