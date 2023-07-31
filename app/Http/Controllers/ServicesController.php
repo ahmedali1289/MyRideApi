@@ -14,6 +14,8 @@ class ServicesController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'base_fare' => 'required',
+            'per_min' => 'required',
+            'per_mile' => 'required',
             'image' => 'required',
         ]);
 
@@ -32,6 +34,8 @@ class ServicesController extends Controller
             $service = new Service([
                 'name' => $request->input('name'),
                 'base_fare' => $request->input('base_fare'),
+                'per_min' => $request->input('per_min'),
+                'per_mile' => $request->input('per_mile'),
                 'image' => $request->input('image'),
                 'status' => 1,
             ]);

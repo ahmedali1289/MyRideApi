@@ -21,4 +21,12 @@ class Requests extends Model
         'active_status',
         'request'
     ];
+    public function users()
+    {
+        return $this->belongsTo(Requests::class);
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

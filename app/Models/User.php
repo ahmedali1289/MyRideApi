@@ -53,4 +53,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Ride::class);
     }
+    public function requests()
+    {
+        return $this->hasMany(User::class);
+    }
 }

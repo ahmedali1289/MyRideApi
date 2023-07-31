@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('base_fare'); 
+            $table->string('per_min'); 
+            $table->string('per_mile'); 
             $table->string('image'); 
             $table->boolean('status')->default(1);
             $table->timestamps();

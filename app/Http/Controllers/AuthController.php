@@ -299,10 +299,12 @@ class AuthController extends Controller
     }
     public function getUserRequests()
     {
-        $variable = Auth::user()->only(['role']);
-        // return $role;
-        if ($variable['role'] == 'admin') {
-            $requests = Requests::all();
+        $user = Auth::user();
+        if ($user->role == 'admin') {
+            // Eager load the related user information using the 'user' relationship
+            $requests = Requests::with('user')->get();
+
+            // Return the requests along with the associated user information
             return response()->json(['data' => $requests], 200);
         } else {
             return response()->json(['error' => 'You do not have permission to access this data.'], 403);
