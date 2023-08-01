@@ -128,7 +128,7 @@ class AuthController extends Controller
                 if ($user->active_status == 1) {
                     if ($user->role === 'driver') {
                         // Driver access is denied
-                        return response()->json(['error' => 'Unauthorized: Role access denied.'], 401);
+                        // return response()->json(['error' => 'Unauthorized: Role access denied.'], 401);
                     }
     
                     $token = $user->createToken('MyApp')->accessToken;

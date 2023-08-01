@@ -50,7 +50,9 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('get-account', [AccountController::class, 'getAccount']);
     Route::post('create-rating', [RatingController::class, 'createRating']); 
     Route::post('create-ride', [RideController::class, 'createRide']);
+    Route::post('update-ride', [RideController::class, 'updateRideStatusToZero']);
     Route::get('get-ride', [RideController::class, 'getRide']);
+    Route::get('get-ride-requests', [RideController::class, 'getDriverRideRequests']);
     Route::post('create-service', [ServicesController::class, 'createService']);
     Route::post('service-delete/{id}', [ServicesController::class, 'delete']);
 });
@@ -67,6 +69,7 @@ Route::middleware(['auth:api'])->group(function () {
 
 
     Route::post('create-promo', [PromoController::class, 'createCodes']);
+    Route::post('promo-valid', [PromoController::class, 'coupanValid']);
     Route::get('get-promo', [PromoController::class, 'getCodes']);
     Route::post('promo-delete/{id}', [PromoController::class, 'delete']);
 

@@ -34,21 +34,21 @@ class RideController extends Controller
             $service = Service::find($request->input('service_id'));
     
             if (!$card) {  
-                return response()->json(['error' => 'Card not found'], 404);
+                return response()->json(['message' => 'Card not found'], 404);
             }
     
             $userRole = auth()->user()->role;
     
-            $acceptDriverId = null;
-            if ($userRole === 'driver') {
-                $acceptDriverId = $userId;
-            } else {
-                $acceptDriver = User::where('id', $request->input('accept_driver_id'))->where('role', 'driver')->first();
-                if (!$acceptDriver) {
-                    return response()->json(['error' => 'Driver not found'], 404);
-                }
-                $acceptDriverId = $acceptDriver->id;
-            }
+            // $acceptDriverId = null;
+            // if ($userRole === 'driver') {
+            //     $acceptDriverId = $userId;
+            // } else {
+            //     $acceptDriver = User::where('id', $request->input('accept_driver_id'))->where('role', 'driver')->first();
+            //     if (!$acceptDriver) {
+            //         return response()->json(['message' => 'Driver not found'], 404);
+            //     }
+            //     $acceptDriverId = $acceptDriver->id;
+            // }
     
             $ride = new Ride([
                 'user_id' => $userId,
@@ -62,14 +62,15 @@ class RideController extends Controller
                 'code' => $request->input('code'),
                 'service_id' =>  $service->id,
                 'card_id' => $card->id,
-                'accept_driver_id' => $acceptDriverId,
+                'status' => 1,
+                // 'accept_driver_id' => $acceptDriverId,
             ]);
     
             $ride->save();
     
             return response()->json(['message' => 'Ride created successfully', 'Ride ' => $ride], 201);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+            return response()->json(['status' => 'message', 'message' => $e->getMessage()]);
         }
     }
     
@@ -84,6 +85,53 @@ class RideController extends Controller
                 return response()->json(['Rides' => $ride], 200);
             } else {
                 return response()->json(['message' => 'Ride not found'], 404);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'message', 'message' => $e->getMessage()], 500);
+        }
+    }
+    public function getDriverRideRequests()
+    {
+        try {
+            $userId = auth()->user()->id;
+            
+            // Get the latest ride for each user
+            $latestRides = Ride::select('user_id', \DB::raw('MAX(created_at) as latest_created_at'))
+                ->where('accept_driver_id', null)
+                ->groupBy('user_id')
+                ->get();
+            
+            // Extract the user IDs and latest timestamps
+            $userIds = $latestRides->pluck('user_id')->toArray();
+            $latestTimestamps = $latestRides->pluck('latest_created_at')->toArray();
+            
+            // Fetch the rides with the user IDs and latest timestamps along with user details
+            $rides = Ride::whereIn('user_id', $userIds)
+                ->whereIn('created_at', $latestTimestamps)
+                ->with('user') // Eager load user details
+                ->get();
+
+            if ($rides->count() > 0) {
+                return response()->json(['Rides' => $rides], 200);
+            } else {
+                return response()->json(['message' => 'Ride not found'], 404);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+    public function updateRideStatusToZero(Request $request)
+    {
+        try {
+            $id = $request->input('id');
+            $ride = Ride::where('id', $id)->where('status', 1)->first();
+
+            if ($ride) {
+                $ride->status = 0;
+                $ride->save();
+                return response()->json(['message' => 'Ride status updated to zero'], 200);
+            } else {
+                return response()->json(['message' => 'Ride not found or status is already zero'], 404);
             }
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);

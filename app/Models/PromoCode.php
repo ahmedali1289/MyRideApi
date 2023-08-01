@@ -12,5 +12,6 @@ class PromoCode extends Model
     protected $fillable = [
         'coupon_no',
         'discount',
+        'use_status'
     ];
 }

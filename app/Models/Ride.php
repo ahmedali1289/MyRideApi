@@ -23,6 +23,7 @@ class Ride extends Model
         'accept_time',
         'code', 
         'user_id',        
+        'status',        
     ];
 
     public function service()
