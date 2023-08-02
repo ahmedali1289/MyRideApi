@@ -94,27 +94,20 @@ class RideController extends Controller
     {
         try {
             $userId = auth()->user()->id;
-            
-            // Get the latest ride for each user
             $latestRides = Ride::select('user_id', \DB::raw('MAX(created_at) as latest_created_at'))
                 ->where('accept_driver_id', null)
                 ->groupBy('user_id')
                 ->get();
-            
-            // Extract the user IDs and latest timestamps
             $userIds = $latestRides->pluck('user_id')->toArray();
             $latestTimestamps = $latestRides->pluck('latest_created_at')->toArray();
-            
-            // Fetch the rides with the user IDs and latest timestamps along with user details
             $rides = Ride::whereIn('user_id', $userIds)
                 ->whereIn('created_at', $latestTimestamps)
-                ->with('user') // Eager load user details
+                ->where('status', 1)
+                ->with('user')
                 ->get();
 
-            if ($rides->count() > 0) {
+            if ($rides) {
                 return response()->json(['Rides' => $rides], 200);
-            } else {
-                return response()->json(['message' => 'Ride not found'], 404);
             }
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
@@ -125,7 +118,6 @@ class RideController extends Controller
         try {
             $id = $request->input('id');
             $ride = Ride::where('id', $id)->where('status', 1)->first();
-
             if ($ride) {
                 $ride->status = 0;
                 $ride->save();

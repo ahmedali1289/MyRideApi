@@ -116,6 +116,7 @@ class AuthController extends Controller
             $validator = Validator::make($request->all(), [
                 'email' => 'required|email',
                 'password' => 'required',
+                'role' => 'required',
             ]);
     
             if ($validator->fails()) {
@@ -126,9 +127,9 @@ class AuthController extends Controller
             if (Auth::attempt($credentials)) {
                 $user = Auth::user();
                 if ($user->active_status == 1) {
-                    if ($user->role === 'driver') {
+                    if ($user->role !== $request->input('role')) {
                         // Driver access is denied
-                        // return response()->json(['error' => 'Unauthorized: Role access denied.'], 401);
+                        return response()->json(['error' => 'Unauthorized: Role access denied.'], 401);
                     }
     
                     $token = $user->createToken('MyApp')->accessToken;
