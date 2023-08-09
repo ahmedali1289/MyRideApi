@@ -1,0 +1,2 @@
+[08-Aug-2023 06:49:02 UTC] PHP Fatal error:  Cannot redeclare App\Http\Controllers\RideController::getDriverRideRequests() in /home/mj55zu7np0b5/public_html/mobile_app_api/myRide/app/Http/Controllers/RideController.php on line 105
+[08-Aug-2023 06:49:10 UTC] PHP Fatal error:  Cannot redeclare App\Http\Controllers\RideController::getDriverRideRequests() in /home/mj55zu7np0b5/public_html/mobile_app_api/myRide/app/Http/Controllers/RideController.php on line 105
