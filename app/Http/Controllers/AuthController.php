@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Carbon;
 use Laravel\Passport\TokenRepository;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -32,12 +33,20 @@ class AuthController extends Controller
             ['otp' => $otp]
         );
         try {
-            Mail::to($request->input('email'))->send(new SendMail($otp));
+             $view = view('otpTemplate', compact('otp'))->render();
+            $mailData = [
+                'subject' => 'OTP Code',
+                'to' => $request->email,
+                'view' => $view
+            ];
+            $this->sendPasswordMail($mailData);
+            // Mail::to($request->input('email'))->send(new SendMail($otp));
             return response()->json(['message' => 'OTP sent successfully']);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to send OTP', 'error_code' => 500]);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 403);
         }
     }
+    
     public function register(Request $request)
     {
         $email = $request->input('email');
@@ -110,6 +119,7 @@ class AuthController extends Controller
             return response()->json(['message' => 'User registered successfully'], 200);
         }
     }
+    
     public function login(Request $request)
     {
         try {
@@ -162,12 +172,20 @@ class AuthController extends Controller
         );
 
         try {
-            Mail::to($request->input('email'))->send(new SendMail($otp));
+             $view = view('otpTemplate', compact('otp'))->render();
+            $mailData = [
+                'subject' => 'OTP Code',
+                'to' => $request->email,
+                'view' => $view
+            ];
+            $this->sendPasswordMail($mailData);
+            // Mail::to($request->input('email'))->send(new SendMail($otp));
             return response()->json(['message' => 'OTP sent successfully']);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to send OTP', 'error_code' => 500]);
         }
     }
+    
     public function verifyOtp(Request $request)
     {
         $email = $request->input('email');
@@ -184,6 +202,7 @@ class AuthController extends Controller
         }
         return response()->json(['message' => 'OTP successfully matched.'], 200);
     }
+    
     public function changePassword(Request $request)
     {
         $email = $request->input('email');
@@ -200,6 +219,7 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Password changed successfully'], 200);
     }
+    
     public function imageUploadBase64(Request $request)
     {
         $imageData = $request->input('image');
@@ -219,6 +239,7 @@ class AuthController extends Controller
         );
         return response()->json(['message' => 'File Uploaded Successfully', 'data' => $uploadedImageResponse], 200);
     }
+    
     public function fileUpload(Request $request)
     {
         if ($request->hasFile('file')) {
@@ -237,6 +258,7 @@ class AuthController extends Controller
             return response()->json(['message' => 'No file was provided'], 400);
         }
     }
+    
     public function updateUser(Request $request)
     {
         $user = Auth::user();
@@ -253,11 +275,13 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'User updated successfully', 'data' => $userToUpdate], 200);
     }
+    
     public function getUser()
     {
         $user = Auth::user();
         return response()->json(['data' => $user], 200);
     }
+    
     public function getUsers()
     {
         $user = Auth::user();
@@ -270,6 +294,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'You do not have permission to access this data.'], 403);
         }
     }
+    
     public function getUserById($id)
     {
         $user = Auth::user();
@@ -287,6 +312,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'You do not have permission to access this data.'], 403);
         }
     }
+    
     public function logout()
     {
         $access_token = auth()->user()->token();
@@ -298,6 +324,7 @@ class AuthController extends Controller
             'message' => 'Successfully logged out.'
         ], 200);
     }
+    
     public function getUserRequests()
     {
         $user = Auth::user();
@@ -312,45 +339,97 @@ class AuthController extends Controller
         }
     }
     
-    public function adminApproveRequests(Request $request)
+     public function adminApproveRequests(Request $request)
     {
         $user = Auth::user();
-
+    
         if ($user->role !== 'admin') {
             return response()->json(['error' => 'You do not have permission to access this data.'], 403);
         }
-
+    
         $userId = $request->input('user_id');
         $password = $request->input('password');
         $request_status = $request->input('request');
         $active_status = $request->input('active_status');
-
+    
         $userToUpdate = User::find($userId);
         $requestToUpdate = Requests::where('user_id', $userId)->first();
-
+    
         if (!$userToUpdate || !$requestToUpdate) {
             return response()->json(['error' => 'User or Request not found'], 404);
         }
-
+    
         if ($password) {
             $passwordHashed = Hash::make($password);
             $userToUpdate->password = $passwordHashed;
         }
-
+    
         $userToUpdate->fill($request->only(['active_status']));
         $requestToUpdate->fill($request->only(['active_status', 'request']));
-
+    
         $requestToUpdate->save();
         $userToUpdate->save();
+    
         if ($active_status == 1) {
             try {
                 $email = $userToUpdate->email;
-                Mail::to($request->input('email'))->send(new SendPasswordMail($email, $password));
+                $data = [
+                    'password' => 'uber1234',
+                    'email' => $email,
+                    'message' => 'Your OTP Code For Verify Email'
+                ];
+    
+                $view = view('passwordTemplate', compact('data', 'email', 'password'))->render();
+                
+                // Define the mail data
+                $mailData = [
+                    'subject' => 'OTP Code',
+                    'to' => $email,
+                    'view' => $view,
+                    'password' => 'uber1234'
+                ];
+    
+                $userToUpdate->password = $password;
+                $userToUpdate->save();
+    
+                $this->sendPasswordMail($mailData);
+                
                 return response()->json(['message' => 'Credentials sent successfully']);
             } catch (\Exception $e) {
-                return response()->json(['error' => 'Failed to send credentials', 'error_code' => 500]);
+                 return response()->json(['success' => false, 'message' => $e->getMessage()], 403);
             }
         }
+        
         return response()->json(['message' => 'User updated successfully', 'data' => $userToUpdate], 200);
     }
+
+    private function sendPasswordMail($mailData){
+        $vieww = $mailData['view'];
+        $apiURL = 'https://api.sendinblue.com/v3/smtp/email';
+        $postInput = [
+            "subject" => $mailData['subject'],
+            "sender" => [
+                "name" => $mailData['subject'],
+                "email" => "noahconner1512@gmail.com"
+            ],
+            "to" => [
+                [
+                    "name" => "Noah Conner",
+                    "email" => $mailData['to'],
+                ]
+            ],
+            "htmlContent" => $vieww
+        ];
+        $headers = [
+            'accept' => 'application/json',
+            'api-key' => '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',
+            'content-type' => 'application/json'
+        ];
+    
+        $response = Http::withHeaders($headers)->post($apiURL, $postInput);
+        return $response;
+    }
+
+    
+  
 }
