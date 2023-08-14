@@ -55,9 +55,9 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => env('APP_URL', 'https://myridebackend-0a59cea97297.herokuapp.com/api'),
 
-    'asset_url' => env('ASSET_URL'),
+    'asset_url' => env('ASSET_URL','https://myridebackend-0a59cea97297.herokuapp.com/public'),
 
     /*
     |--------------------------------------------------------------------------
